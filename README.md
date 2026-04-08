@@ -44,6 +44,8 @@ The project is organized into the following directory structure to ensure clarit
 │   └── v8_run/        # Metrics for the baseline comparison
 ├── requirements.txt        # Python dependencies
 └── README.md               # Project documentation
+```  &lt;
+&lt;/pre&gt;
 
 ---
 
