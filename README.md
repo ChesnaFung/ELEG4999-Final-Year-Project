@@ -26,24 +26,41 @@ The project builds upon the modular Faster R-CNN framework developed in Thesis I
 ---
 
 ## 🛠️ Repository Structure
-- `src/`: Core Python scripts for training and data preprocessing.
-- `data/`: Configuration files (e.g., `data.yaml`) for the Taiwan Highway dataset.
-- `weights/`: Trained model weights (`best.pt`) for reproducibility.
-- `results/`: Visualization of training metrics, loss curves, and confusion matrices.
-- `requirements.txt`: Environment dependencies.
+
+The project is organized into the following directory structure to ensure clarity and reproducibility:
+
+```text
+├── data/
+│   └── data.yaml           # Dataset configuration (classes & paths)
+├── src/
+│   ├── extract_time_data_v8.py     # Measure the inference latency and FPS of YOLOv8
+│   ├── extract_time_data_v11.py    # Measure the inference latency and FPS of YOLOv11
+│   └── train.py                # Model training script for YOLOv11 and v8
+├── weights/
+│   ├── yolov11s_best.pt    # Proposed model (0.958 mAP0.5)
+│   └── yolov8s_best.pt     # Baseline model (0.957 mAP0.5)
+├── results/
+│   ├── v11_run/          # Training curves & Confusion Matrix for YOLOv11s
+│   └── v8_run/        # Metrics for the baseline comparison
+├── requirements.txt        # Python dependencies
+└── README.md               # Project documentation
 
 ---
 
 ## 📦 Dataset Availability
 The localized Taiwan Highway Dataset (manual annotations + enhanced frames) is currently being synchronized. 
-- **Status:** 🏗️ Uploading to [Kaggle/Google Drive]
+- **Status:** 🏗️ Uploading to [Google Drive]
 - **Estimated Live Date:** April 15, 2026.
-- *If you require immediate access for academic review, please contact the author via the email listed in the thesis.*
+- **Sample Data**: A small set of sample images and labels is provided in the data/samples/ for immediate review.
+- *If you require immediate access for academic review, please contact the author via the email.*
 
 ---
 
 ## 🚀 Quick Start
 
 ### 1. Environment Setup
+Clone the repository and install the necessary dependencies:
 ```bash
+git clone https://github.com/ChesnaFung/ELEG4999-Final-Year-Project.git
+cd FYP_TurnSignal
 pip install -r requirements.txt
