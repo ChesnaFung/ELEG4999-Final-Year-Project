@@ -76,7 +76,8 @@ This project presents a **YOLOv11s-based binary turn signal detection system** s
 │   └── data.yaml                        # Dataset configuration (class names, paths, splits)
 │
 ├── src/
-│   ├── train.py                         # Main training script for YOLOv11s and YOLOv8s
+│   ├── train_yolov11.py                        # Main training script for YOLOv11s
+│   ├── train_yolov8.py                         # Main training script for YOLOv8s
 │   ├── extract_time_data_v11.py         # Inference latency & FPS benchmarking for YOLOv11s
 │   └── extract_time_data_v8.py          # Inference latency & FPS benchmarking for YOLOv8s
 │
@@ -112,7 +113,7 @@ This project presents a **YOLOv11s-based binary turn signal detection system** s
 
 ```bash
 # Python environment
-Python        3.13.x
+Python        3.13.12
 PyTorch       2.7.1
 Ultralytics   8.4.33   # YOLOv11 framework
 OpenCV        4.13.0.92
@@ -135,8 +136,8 @@ pip install ultralytics opencv-python tensorboard matplotlib
 The custom dataset comprises **7,856 annotated frames** extracted from private Taiwan highway dashboard-camera recordings provided by Ms. Ho, Ting-Syuan. Footage was captured at 30 FPS under diverse real-world conditions including daytime, nighttime, tunnel lighting, and light rain.
 
 **Binary class definitions:**
-- `turn_signal_on` — Signal lamp actively flashing or steadily illuminated
-- `turn_signal_off` — Signal lamp not illuminated
+- `on` — Signal lamp actively flashing or steadily illuminated
+- `off` — Signal lamp not illuminated
 
 **Dataset splits (partitioned at the video level to prevent data leakage):**
 
@@ -152,22 +153,20 @@ Update `data/data.yaml` with the correct absolute or relative paths to your data
 
 ```yaml
 # data/data.yaml
-path: /path/to/your/dataset      # Root dataset directory
+path: /path/to/your/dataset
 train: images/train
-val:   images/val
-test:  images/test
+val: images/val
+test: images/test
 
 nc: 2
-names:
-  0: turn_signal_off
-  1: turn_signal_on
+names: ['Off', 'On']
 ```
 
 ---
 
 ## Model Training
 
-Both models are trained via `src/train.py`. Key hyperparameters were kept **identical** across YOLOv11s and YOLOv8s to ensure fair comparison.
+Models are trained via `src/train_yolov11.py` and `src/train_yolov8.py`. The only difference are the model used to train. Key hyperparameters were kept **identical** across YOLOv11s and YOLOv8s to ensure fair comparison.
 
 ### Key Hyperparameters
 
@@ -188,7 +187,7 @@ Both models are trained via `src/train.py`. Key hyperparameters were kept **iden
 **Train YOLOv11s (proposed model):**
 
 ```bash
-python src/train.py \
+python src/train_yolov11.py \
     --model   yolo11s.pt \
     --data    data/data.yaml \
     --epochs  100 \
@@ -201,7 +200,7 @@ python src/train.py \
 **Train YOLOv8s (baseline):**
 
 ```bash
-python src/train.py \
+python src/train_yolov8.py \
     --model   yolov8s.pt \
     --data    data/data.yaml \
     --epochs  100 \
