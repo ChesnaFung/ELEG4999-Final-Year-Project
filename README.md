@@ -73,27 +73,29 @@ This project presents a **YOLOv11s-based binary turn signal detection system** s
 ```
 .
 ├── data/
-│   └── data.yaml                        # Dataset configuration (class names, paths, splits)
+│   └── data.yaml                           # Dataset configuration (class names, paths, splits)
 │
 ├── src/
-│   ├── train_yolov11.py                        # Main training script for YOLOv11s
-│   ├── train_yolov8.py                         # Main training script for YOLOv8s
-│   ├── extract_time_data_v11.py         # Inference latency & FPS benchmarking for YOLOv11s
-│   └── extract_time_data_v8.py          # Inference latency & FPS benchmarking for YOLOv8s
+│   ├── train_yolov11.py                    # Main training script for YOLOv11s
+│   ├── train_yolov8.py                     # Main training script for YOLOv8s
+│   ├── extract_time_data_v11.py            # Inference latency & FPS benchmarking for YOLOv11s
+│   └── extract_time_data_v8.py             # Inference latency & FPS benchmarking for YOLOv8s
 │
 ├── weights/
-│   ├── yolov11s_best.pt                 # Best YOLOv11s checkpoint (saved by validation mAP@0.50)
-│   └── yolov8s_best.pt                  # Best YOLOv8s checkpoint (for baseline comparison)
+│   ├── yolov11s_best.pt                    # Best YOLOv11s checkpoint (saved by validation mAP@0.50)
+│   └── yolov8s_best.pt                     # Best YOLOv8s checkpoint (for baseline comparison)
 │
 ├── results/
 │   ├── v11_run/
-│   │   ├── results.png                  # YOLOv11s training curves (loss, mAP, precision, recall)
-│   │   └── confusion_matrix.png         # YOLOv11s normalized confusion matrix
+│   │   ├── results_v11.png                 # YOLOv11s training curves (loss, mAP, precision, recall)
+│   │   ├── confusion_matrix_v11.png        # YOLOv11s normalized confusion matrix
+│       └── train_yolov11.log               # Training log for YOLOv11s
 │   └── v8_run/
-│       ├── results.png                  # YOLOv8s training curves
-│       └── confusion_matrix.png         # YOLOv8s normalized confusion matrix
-│
-└── README.md
+│       ├── results_v8.png                  # YOLOv8s training curves
+│       ├── confusion_matrix_v8.png         # YOLOv8s normalized confusion matrix
+│       └── train_yolov8.log                # Training log for YOLOv8s
+├── README.md
+└── requirement.txt
 ```
 
 ---
