@@ -1,0 +1,12 @@
+# Core deep learning framework
+torch==2.7.1
+torchvision==0.22.1+cu118
+
+# Ultralytics YOLOv11/YOLOv8 framework
+ultralytics==8.4.33
+
+# Image processing
+opencv-python==4.13.0.92
+
+# Visualization & logging
+matplotlib==3.10.8
