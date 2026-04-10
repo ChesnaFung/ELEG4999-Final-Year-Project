@@ -1,0 +1,7 @@
+path: /home/chesna/Turn_signal_dataset/Turn_signal_dataset
+train: images/train
+val: images/val
+test: images/test
+
+nc: 2
+names: ['Off', 'On']
