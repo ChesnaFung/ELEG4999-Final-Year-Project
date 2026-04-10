@@ -1,68 +1,351 @@
-# YOLOv11-Based Vehicle Turn Signal Detection for Autonomous Driving
+# Real-Time Vehicle Turn Signal Detection via YOLOv11
 
-**Final Year Project (Thesis II)**
-**Department of Electronic Engineering**
-**The Chinese University of Hong Kong**
+**Final Year Project (FYP) — Department of Electronic Engineering, The Chinese University of Hong Kong (CUHK)**
 
-**Author:** Fung Cheuk Nam
-**Supervisor:** Prof. Li Hongsheng  
-**Date:** 8 April 2026
-
-## Project Overview
-
-This repository contains the complete implementation of a high-performance **vehicle turn signal (on/off) detection system** based on **YOLOv11s**, specifically optimized for real-world Taiwan highway scenarios in autonomous driving applications.
-
-The project builds upon the modular Faster R-CNN framework developed in Thesis I and shifts to a single-stage YOLOv11 architecture to achieve real-time performance while maintaining high accuracy for small turn signal detection.
+> *A high-performance, domain-adaptive vehicle turn signal detection system for autonomous driving on Taiwan highways, leveraging YOLOv11 with Real-ESRGAN super-resolution preprocessing.*
 
 ---
 
-**Key Highlights:**
-- Custom Taiwan highway dataset collected from dashboard camera videos
-- Vehicle-centric cropping + Real-ESRGAN 2× super-resolution preprocessing
-- Binary classification (turn_signal_on vs. turn_signal_off)
-- Strong performance on NVIDIA RTX 2080Ti: **mAP@0.5 = 0.958**, **mAP@0.5:0.95 = 0.839**, **138 FPS**
-- Comprehensive comparison with YOLOv8s on the identical dataset
+## Table of Contents
+
+1. [Introduction](#introduction)
+2. [Performance Highlights](#performance-highlights)
+3. [Repository Structure](#repository-structure)
+4. [Environment Setup](#environment-setup)
+5. [Data Preparation](#data-preparation)
+6. [Model Training](#model-training)
+7. [Benchmarking](#benchmarking)
+8. [Visualization](#visualization)
+9. [Acknowledgements](#acknowledgements)
+10. [License](#license)
 
 ---
 
-## 🛠️ Repository Structure
+## Introduction
 
-The project is organized into the following directory structure to ensure clarity and reproducibility:
+The rapid advancement of autonomous driving systems has elevated vehicle perception beyond basic obstacle detection to the domain of **behavioural intent recognition**. On high-speed highway networks — such as those in Taiwan, where vehicles routinely exceed 100 km/h — accurate real-time detection of surrounding vehicles' turn signal states (*on* / *off*) provides critical lead time for lane-change prediction and collision avoidance.
 
-```text
+This project presents a **YOLOv11s-based binary turn signal detection system** specifically engineered for Taiwan highway surveillance footage. It constitutes the second phase of a two-part Final Year Project, building upon the Faster R-CNN modular pipeline established in Thesis I.
+
+### Core Contributions
+
+- **Domain-adaptive dataset construction**: 7,856 manually annotated frames extracted from private Taiwan highway dashboard-camera recordings, addressing the severe domain gap (mAP@50 = 0.309) observed with public datasets such as ATLAS.
+- **Preprocessing pipeline**: An automated **vehicle-centric cropping** strategy using a pre-trained YOLOv8m detector (with 20% bounding box expansion) followed by **2× Real-ESRGAN super-resolution** upscaling to recover fine-grained textures of small-scale turn signal lamps.
+- **State-of-the-art architecture**: Adoption of **YOLOv11s** with its C3k2 backbone blocks and C2PSA spatial attention modules, enabling superior localization of small objects occupying less than 1% of the image area.
+- **Rigorous comparative evaluation**: Direct, same-dataset comparison against YOLOv8s trained under identical hyperparameter conditions.
+
+---
+
+## Performance Highlights
+
+### YOLOv11s — Final Model Performance (Taiwan Highway Dataset)
+
+| Metric | Value | Interpretation |
+|---|---|---|
+| **Precision** | 0.942 | Low false-positive rate; highly reliable detections |
+| **Recall** | 0.961 | High detection rate; minimal missed signals |
+| **mAP@0.50** | **0.958** | Superior overall accuracy at IoU threshold 0.5 |
+| **mAP@0.50:0.95** | 0.839 | Precise bounding-box localization across multiple IoU thresholds |
+| **Inference Latency** | **7.25 ms** | Measured on NVIDIA 2080Ti GPU (FP16, 640×640) |
+| **Throughput** | 138 FPS | Exceeds real-time requirement for autonomous driving |
+
+### YOLOv11s vs. YOLOv8s — Direct Comparative Summary
+
+| Model | Precision | Recall | mAP@0.50 | mAP@0.50:0.95 | Latency (ms) | FPS |
+|---|---|---|---|---|---|---|
+| YOLOv8s *(baseline)* | 0.945 | 0.952 | 0.957 | 0.826 | 6.1 | 164 |
+| **YOLOv11s** *(proposed)* | **0.942** | **0.961** | **0.958** | **0.839** | 7.25 | 138 |
+
+> YOLOv11s achieves a superior mAP@0.50:0.95 (+0.013) — indicating improved bounding-box localization for small turn signals — at an acceptable latency trade-off attributable to the C2PSA spatial attention mechanism.
+
+### Historical Baseline Comparison
+
+| Model | Dataset | Task | mAP@0.50 | Speed (FPS) |
+|---|---|---|---|---|
+| Faster R-CNN | MNIST (Synthetic) | Digit Detection | 0.82 | ~12 |
+| YOLOv8 | ATLAS (Public) | Multi-class Road | 0.309 | ~80 |
+| **YOLOv11s** | **Taiwan Highway (Custom)** | **Binary (On/Off)** | **0.958** | **138** |
+
+---
+
+## Repository Structure
+
+```
+.
 ├── data/
-│   └── data.yaml           # Dataset configuration (classes & paths)
+│   └── data.yaml                        # Dataset configuration (class names, paths, splits)
+│
 ├── src/
-│   ├── extract_time_data_v8.py     # Measure the inference latency and FPS of YOLOv8
-│   ├── extract_time_data_v11.py    # Measure the inference latency and FPS of YOLOv11
-│   └── train.py                # Model training script for YOLOv11 and v8
+│   ├── train.py                         # Main training script for YOLOv11s and YOLOv8s
+│   ├── extract_time_data_v11.py         # Inference latency & FPS benchmarking for YOLOv11s
+│   └── extract_time_data_v8.py          # Inference latency & FPS benchmarking for YOLOv8s
+│
 ├── weights/
-│   ├── yolov11s_best.pt    # Proposed model (0.958 mAP0.5)
-│   └── yolov8s_best.pt     # Baseline model (0.957 mAP0.5)
+│   ├── yolov11s_best.pt                 # Best YOLOv11s checkpoint (saved by validation mAP@0.50)
+│   └── yolov8s_best.pt                  # Best YOLOv8s checkpoint (for baseline comparison)
+│
 ├── results/
-│   ├── v11_run/          # Training curves & Confusion Matrix for YOLOv11s
-│   └── v8_run/        # Metrics for the baseline comparison
-├── requirements.txt        # Python dependencies
-└── README.md               # Project documentation
-```  &lt;
-&lt;/pre&gt;
+│   ├── v11_run/
+│   │   ├── results.png                  # YOLOv11s training curves (loss, mAP, precision, recall)
+│   │   └── confusion_matrix.png         # YOLOv11s normalized confusion matrix
+│   └── v8_run/
+│       ├── results.png                  # YOLOv8s training curves
+│       └── confusion_matrix.png         # YOLOv8s normalized confusion matrix
+│
+└── README.md
+```
 
 ---
 
-## 📦 Dataset Availability
-The localized Taiwan Highway Dataset (manual annotations + enhanced frames) is currently being synchronized. 
-- **Status:** 🏗️ Uploading to [Google Drive]
-- **Estimated Live Date:** April 15, 2026.
-- **Sample Data**: A small set of sample images and labels is provided in the data/samples/ for immediate review.
-- *If you require immediate access for academic review, please contact the author via the email.*
+## Environment Setup
 
----
+### Hardware
 
-## 🚀 Quick Start
+| Component | Specification |
+|---|---|
+| GPU | NVIDIA GeForce RTX 2080Ti (11 GB GDDR6) |
+| OS | Windows 10 |
+| CUDA | 11.8 |
+| cuDNN | 9.1.0 |
 
-### 1. Environment Setup
-Clone the repository and install the necessary dependencies:
+### Software Dependencies
+
 ```bash
-git clone https://github.com/ChesnaFung/ELEG4999-Final-Year-Project.git
-cd FYP_TurnSignal
-pip install -r requirements.txt
+# Python environment
+Python        3.13.x
+PyTorch       2.7.1
+Ultralytics   8.4.33   # YOLOv11 framework
+OpenCV        4.13.0.92
+```
+
+Install all dependencies via:
+
+```bash
+pip install ultralytics opencv-python tensorboard matplotlib
+```
+
+> **Note:** The Ultralytics package provides both the YOLOv11 and YOLOv8 frameworks. Ensure CUDA drivers are correctly configured prior to training.
+
+---
+
+## Data Preparation
+
+### Dataset Overview
+
+The custom dataset comprises **7,856 annotated frames** extracted from private Taiwan highway dashboard-camera recordings provided by Ms. Ho, Ting-Syuan. Footage was captured at 30 FPS under diverse real-world conditions including daytime, nighttime, tunnel lighting, and light rain.
+
+**Binary class definitions:**
+- `turn_signal_on` — Signal lamp actively flashing or steadily illuminated
+- `turn_signal_off` — Signal lamp not illuminated
+
+**Dataset splits (partitioned at the video level to prevent data leakage):**
+
+| Split | Images |
+|---|---|
+| Training | 6,284 |
+| Validation | 785 |
+| Test | 787 |
+
+### Preprocessing Pipeline
+
+The following offline preprocessing pipeline was applied prior to annotation and training:
+
+**Step 1 — Vehicle-Centric Cropping**
+
+A pre-trained YOLOv8m (medium) detector was used to localize vehicles in each sampled frame. The resulting bounding boxes were expanded by **20%** to ensure full coverage of the peripheral turn signal regions before cropping.
+
+```python
+# Conceptual pipeline (see src/train.py for implementation details)
+vehicle_boxes = yolov8m_detector(frame)
+expanded_boxes = expand_boxes(vehicle_boxes, factor=0.20)
+crops = [frame.crop(box) for box in expanded_boxes]
+```
+
+**Step 2 — Real-ESRGAN Super-Resolution**
+
+To recover the fine-grained textures of small signal lamps and address the inherent resolution limitations of long-range highway surveillance, each vehicle crop was upscaled by **2×** using a pre-trained **Real-ESRGAN** model.
+
+```bash
+# Apply Real-ESRGAN upscaling (example using the official inference script)
+python inference_realesrgan.py \
+    --input  data/raw_crops/ \
+    --output data/sr_crops/  \
+    --scale  2
+```
+
+**Step 3 — Annotation**
+
+Annotation was performed manually using **LabelImg** and saved in **YOLO format** (`.txt` files, normalized coordinates). Only unambiguous, clearly visible turn signals were labelled. Occluded, severely blurred, or ambiguous instances were excluded.
+
+**Step 4 — Dataset Configuration**
+
+Update `data/data.yaml` with the correct absolute or relative paths to your dataset:
+
+```yaml
+# data/data.yaml
+path: /path/to/your/dataset      # Root dataset directory
+train: images/train
+val:   images/val
+test:  images/test
+
+nc: 2
+names:
+  0: turn_signal_off
+  1: turn_signal_on
+```
+
+---
+
+## Model Training
+
+Both models are trained via `src/train.py`. Key hyperparameters were kept **identical** across YOLOv11s and YOLOv8s to ensure fair comparison.
+
+### Key Hyperparameters
+
+| Parameter | Value | Rationale |
+|---|---|---|
+| Input Resolution | 640 × 640 | Balanced speed–accuracy for small-object detection |
+| Epochs | 100 | Full training duration; no early stopping triggered |
+| Batch Size | 16 | Adjusted for 11 GB GPU memory |
+| Optimizer | SGD | Standard for YOLO training |
+| Initial LR | 1.6 × 10⁻³ | Linear decay scheduler applied after warmup |
+| Warmup Epochs | 3 | Stabilizes gradient flow in early training |
+| Close Mosaic | 10 | Mosaic active for epochs 1–90; disabled for fine-tuning in epochs 91–100 |
+| Mixed Precision | AMP (FP16) | Accelerates training and reduces GPU memory usage |
+| Weight Decay | 5 × 10⁻⁴ | Standard regularization to prevent overfitting |
+
+### Training Commands
+
+**Train YOLOv11s (proposed model):**
+
+```bash
+python src/train.py \
+    --model   yolo11s.pt \
+    --data    data/data.yaml \
+    --epochs  100 \
+    --batch   16 \
+    --imgsz   640 \
+    --project results \
+    --name    v11_run
+```
+
+**Train YOLOv8s (baseline):**
+
+```bash
+python src/train.py \
+    --model   yolov8s.pt \
+    --data    data/data.yaml \
+    --epochs  100 \
+    --batch   16 \
+    --imgsz   640 \
+    --project results \
+    --name    v8_run
+```
+
+> Trained weight checkpoints are saved to `weights/yolov11s_best.pt` and `weights/yolov8s_best.pt` respectively.
+
+### Validation
+
+```bash
+# Validate YOLOv11s
+yolo val model=weights/yolov11s_best.pt data=data/data.yaml imgsz=640
+
+# Validate YOLOv8s
+yolo val model=weights/yolov8s_best.pt  data=data/data.yaml imgsz=640
+```
+
+---
+
+## Benchmarking
+
+Inference latency and throughput (FPS) are evaluated using dedicated benchmarking scripts that perform warmup runs and average measurements across the entire test set.
+
+### YOLOv11s Benchmarking
+
+```bash
+python src/extract_time_data_v11.py \
+    --weights weights/yolov11s_best.pt \
+    --data    data/data.yaml \
+    --imgsz   640 \
+    --device  0
+```
+
+### YOLOv8s Benchmarking
+
+```bash
+python src/extract_time_data_v8.py \
+    --weights weights/yolov8s_best.pt \
+    --data    data/data.yaml \
+    --imgsz   640 \
+    --device  0
+```
+
+Both scripts report **average per-image inference latency (ms)**, **post-processing time**, and **overall FPS** to stdout. Measurements were conducted on an NVIDIA 2080Ti GPU with FP16 precision enabled.
+
+---
+
+## Visualization
+
+### Training Curves
+
+Training loss curves (Box Loss, Classification Loss, Distribution Focal Loss), together with validation Precision, Recall, mAP@0.50, and mAP@0.50:0.95 are exported automatically after training.
+
+**YOLOv11s training curves:**
+
+![YOLOv11s Training Curves](results/v11_run/results.png)
+
+**YOLOv8s training curves:**
+
+![YOLOv8s Training Curves](results/v8_run/results.png)
+
+### Confusion Matrices
+
+**YOLOv11s confusion matrix:**
+
+![YOLOv11s Confusion Matrix](results/v11_run/confusion_matrix.png)
+
+**YOLOv8s confusion matrix:**
+
+![YOLOv8s Confusion Matrix](results/v8_run/confusion_matrix.png)
+
+### TensorBoard Monitoring
+
+Training metrics can be monitored in real time via TensorBoard:
+
+```bash
+tensorboard --logdir results/
+```
+
+---
+
+## Acknowledgements
+
+This project was conducted as a Final Year Project (FYP) in the **Department of Electronic Engineering, The Chinese University of Hong Kong (CUHK)**, under the academic year 2025–2026.
+
+The author expresses sincere gratitude to the following individuals for their indispensable contributions:
+
+- **Professor Li Hongsheng** — Project supervisor. His expertise in deep learning and computer vision provided the foundational guidance that shaped the entire research direction, from the Faster R-CNN pipeline in Thesis I through to the final YOLOv11-based system.
+
+- **Ms. Ho, Ting-Syuan, and her research team** — For generously providing the high-quality, privately collected Taiwan highway dashboard-camera dataset. The custom annotations derived from this data were critical to overcoming the domain gap observed with public datasets and achieving strong real-world detection performance.
+
+
+- **Dr. Ju Xiaoliang** — For his technical recommendations on object detection algorithms and for providing access to the departmental NVIDIA 2080Ti GPU server, which was essential for model training and evaluation.
+
+- **Mr. Manson Mak and the technical support team** of the Department of Electronic Engineering — For their assistance with administrative and laboratory matters.
+
+---
+
+## AI Tools Disclosure
+
+In the preparation of this repository documentation(README), AI-assisted writing tools — including **Claude (Anthropic)** — were employed to support drafting and linguistic refinement. All AI-generated content was critically reviewed and verified by the author against the original experimental data and thesis findings. The core research methodology, dataset construction, and technical contributions remain the original work of the author.
+
+---
+
+## License
+
+This repository is intended for academic and research purposes only. The dataset used in this project was provided under a private agreement and is **not publicly distributed**. Please contact the Department of Electronic Engineering, CUHK, for further enquiries regarding data access.
+
+---
+
+*Department of Electronic Engineering, The Chinese University of Hong Kong*
+*Final Year Project — April 2026*
