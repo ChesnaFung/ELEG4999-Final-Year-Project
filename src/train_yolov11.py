@@ -11,8 +11,8 @@ def main():
         imgsz=640,
         batch=128,
         device=[0, 1, 2, 3, 4, 5, 6, 7],  # uses 8 GPUs
-        project="FYP_TurnSignal",
-        name="v11_8GPU_Final",
+        project="runs/detect/FYP_TurnSignal",
+        name="v11_run",  # this is your folder name
         exist_ok=True
     )
 

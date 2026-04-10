@@ -3,10 +3,10 @@ import time
 import numpy as np
 
 # 1. 加載模型
-model = YOLO('runs/detect/FYP_TurnSignal/v11_run/weights/best.pt')
+model = YOLO('weights/yolov11s_best.pt')
 
 # 2. 推薦設定（提升可重現性與速度）
-source = 'images/test'          # 或指定一個包含多張測試圖片的資料夾
+source = 'data/images/test'          
 imgsz = 640
 device = 0                      # GPU 0
 
