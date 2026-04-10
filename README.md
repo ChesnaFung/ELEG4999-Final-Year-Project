@@ -104,7 +104,7 @@ This project presents a **YOLOv11s-based binary turn signal detection system** s
 | Component | Specification |
 |---|---|
 | GPU | NVIDIA GeForce RTX 2080Ti (11 GB GDDR6) |
-| OS | Windows 10 |
+| OS | Ubuntu 24.04.2 LTS |
 | CUDA | 11.8 |
 | cuDNN | 9.1.0 |
 
@@ -146,38 +146,7 @@ The custom dataset comprises **7,856 annotated frames** extracted from private T
 | Validation | 785 |
 | Test | 787 |
 
-### Preprocessing Pipeline
-
-The following offline preprocessing pipeline was applied prior to annotation and training:
-
-**Step 1 — Vehicle-Centric Cropping**
-
-A pre-trained YOLOv8m (medium) detector was used to localize vehicles in each sampled frame. The resulting bounding boxes were expanded by **20%** to ensure full coverage of the peripheral turn signal regions before cropping.
-
-```python
-# Conceptual pipeline (see src/train.py for implementation details)
-vehicle_boxes = yolov8m_detector(frame)
-expanded_boxes = expand_boxes(vehicle_boxes, factor=0.20)
-crops = [frame.crop(box) for box in expanded_boxes]
-```
-
-**Step 2 — Real-ESRGAN Super-Resolution**
-
-To recover the fine-grained textures of small signal lamps and address the inherent resolution limitations of long-range highway surveillance, each vehicle crop was upscaled by **2×** using a pre-trained **Real-ESRGAN** model.
-
-```bash
-# Apply Real-ESRGAN upscaling (example using the official inference script)
-python inference_realesrgan.py \
-    --input  data/raw_crops/ \
-    --output data/sr_crops/  \
-    --scale  2
-```
-
-**Step 3 — Annotation**
-
-Annotation was performed manually using **LabelImg** and saved in **YOLO format** (`.txt` files, normalized coordinates). Only unambiguous, clearly visible turn signals were labelled. Occluded, severely blurred, or ambiguous instances were excluded.
-
-**Step 4 — Dataset Configuration**
+### Dataset Configuration
 
 Update `data/data.yaml` with the correct absolute or relative paths to your dataset:
 
@@ -332,6 +301,18 @@ The author expresses sincere gratitude to the following individuals for their in
 - **Dr. Ju Xiaoliang** — For his technical recommendations on object detection algorithms and for providing access to the departmental NVIDIA 2080Ti GPU server, which was essential for model training and evaluation.
 
 - **Mr. Manson Mak and the technical support team** of the Department of Electronic Engineering — For their assistance with administrative and laboratory matters.
+
+---
+
+## Dataset Availability
+
+| Item | Status |
+|---|---|
+| Custom Taiwan Highway Dataset (7,856 images) | 🏗️ Uploading to [Google Drive](#) |
+| Annotations (YOLO format `.txt`) | 🏗️ Uploading to [Google Drive](#) |
+| Pre-trained Weights (`yolov11s_best.pt`, `yolov8s_best.pt`) | 🏗️ Uploading to [Google Drive](#) |
+
+> **Note:** The dataset was collected under a private agreement. Once uploaded, the Google Drive link will be updated here. For access enquiries in the interim, please contact 1155192095@link.cuhk.edu.hk.
 
 ---
 
