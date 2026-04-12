@@ -330,11 +330,11 @@ The author expresses sincere gratitude to the following individuals for their in
 
 | Item | Status |
 |---|---|
-| Custom Taiwan Highway Dataset (7,856 images + YOLO annotations) | 🏗️ Uploading to [Google Drive](#) |
+| Custom Taiwan Highway Dataset (7,856 images + YOLO annotations) | ✅ Available on [Google Drive](https://drive.google.com/drive/folders/12Kw3LSy6u3OZ_dBmTIF54thxBmDShpsQ) |
 
 > ⚠️ Pre-trained weights (`yolov11s_best.pt`, `yolov8s_best.pt`) are available directly in the `weights/` directory of this repository.
 
-> **Note:** The dataset was collected under a private agreement. Once uploaded, the Google Drive link will be updated here. For access enquiries in the interim, please contact 1155192095@link.cuhk.edu.hk.
+> **Note:** The dataset was collected under a private agreement. The Google Drive link is now accessible for authorized users.
 
 ---
 
